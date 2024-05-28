@@ -20,6 +20,8 @@ void TestAlgorithms() {
     algorithms.emplace_back(std::make_unique<Cast5>());
     algorithms.emplace_back(std::make_unique<Camellia>());
     algorithms.emplace_back(std::make_unique<Dsa>());
+    algorithms.emplace_back(std::make_unique<Dh>());
+    algorithms.emplace_back(std::make_unique<Ecdsa>());
     //algorithms.emplace_back(std::make_unique<Idea>());
     //algorithms.emplace_back(std::make_unique<Blowfish>());
 

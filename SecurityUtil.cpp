@@ -568,5 +568,215 @@ std::string Dsa::DecrypText(const std::string& ciphertext, const unsigned char k
     return std::string(plaintext.begin(), plaintext.begin() + plaintext_len);
 }
 
+Dh::Dh() : dh(nullptr), pubKey(nullptr), privKey(nullptr), sharedKey(nullptr) {}
+
+Dh::~Dh() {
+    if (dh) {
+        DH_free(dh);
+    }
+    if (pubKey) {
+        BN_free(pubKey);
+    }
+    if (privKey) {
+        BN_free(privKey);
+    }
+    if (sharedKey) {
+        OPENSSL_free(sharedKey);
+    }
+}
+
+void Dh::initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE]) {
+    dh = DH_new();
+    if (!dh) {
+        std::cerr << "Error creating DH structure" << std::endl;
+        return;
+    }
+
+    if (!DH_generate_parameters_ex(dh, 2048, DH_GENERATOR_2, nullptr)) {
+        std::cerr << "Error generating DH parameters" << std::endl;
+        DH_free(dh);
+        dh = nullptr;
+        return;
+    }
+
+    if (!DH_generate_key(dh)) {
+        std::cerr << "Error generating DH key" << std::endl;
+        DH_free(dh);
+        dh = nullptr;
+        return;
+    }
+
+    pubKey = BN_dup(DH_get0_pub_key(dh));
+    privKey = BN_dup(DH_get0_priv_key(dh));
+
+    // Generate a random IV
+    if (!RAND_bytes(iv, AES_BLOCK_SIZE)) {
+        std::cerr << "Error generating random IV" << std::endl;
+    }
+
+    // For demonstration purposes, we'll generate a shared secret here
+    // In a real application, you would exchange the public key with a peer
+    BIGNUM* peerPubKey = BN_new();
+    BN_rand(peerPubKey, 2048, BN_RAND_TOP_ONE, BN_RAND_BOTTOM_ANY);
+    sharedKey = (unsigned char*)OPENSSL_malloc(DH_size(dh));
+    if (!sharedKey) {
+        std::cerr << "Error allocating memory for shared key" << std::endl;
+        return;
+    }
+
+    int sharedKeyLen = DH_compute_key(sharedKey, peerPubKey, dh);
+    if (sharedKeyLen == -1) {
+        std::cerr << "Error computing shared key" << std::endl;
+        OPENSSL_free(sharedKey);
+        sharedKey = nullptr;
+        return;
+    }
+
+    // Use the shared key as the encryption key
+    std::copy(sharedKey, sharedKey + std::min(sharedKeyLen, AES_BLOCK_SIZE), key);
+
+    BN_free(peerPubKey);
+}
+
+std::string Dh::EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const {
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
+        std::cerr << "Error initializing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> ciphertext(plainText.size() + AES_BLOCK_SIZE);
+    int len;
+    int ciphertext_len;
+
+    if (!EVP_EncryptUpdate(ctx, ciphertext.data(), &len, reinterpret_cast<const unsigned char*>(plainText.c_str()), plainText.size())) {
+        std::cerr << "Error during encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len = len;
+
+    if (!EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len)) {
+        std::cerr << "Error finalizing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(ciphertext.begin(), ciphertext.begin() + ciphertext_len);
+}
+
+std::string Dh::DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const {
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
+        std::cerr << "Error initializing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> plaintext(cipherText.size());
+    int len;
+    int plaintext_len;
+
+    if (!EVP_DecryptUpdate(ctx, plaintext.data(), &len, reinterpret_cast<const unsigned char*>(cipherText.c_str()), cipherText.size())) {
+        std::cerr << "Error during decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len = len;
+
+    if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
+        std::cerr << "Error finalizing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(plaintext.begin(), plaintext.begin() + plaintext_len);
+}
+
+Ecdsa::Ecdsa() : eckey(nullptr) {}
+
+Ecdsa::~Ecdsa() {
+    if (eckey) {
+        EC_KEY_free(eckey);
+    }
+}
+
+void Ecdsa::initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE]) {
+    eckey = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+    if (!eckey) {
+        std::cerr << "Error creating EC_KEY structure" << std::endl;
+        return;
+    }
+
+    if (!EC_KEY_generate_key(eckey)) {
+        std::cerr << "Error generating EC key" << std::endl;
+        EC_KEY_free(eckey);
+        eckey = nullptr;
+        return;
+    }
+
+    // EC anahtarýný key[] ve iv[] dizilerine kopyalayýn (eðer gerekiyorsa)
+    // Bu adým aslýnda ECDSA için gerekli deðil, burada yalnýzca sýnýfýn uyumunu saðlamak için eklenmiþtir.
+    std::fill(key, key + 32, 0);  // 256 bit key
+    std::fill(iv, iv + 16, 0);    // 128 bit IV
+}
+
+std::string Ecdsa::EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const {
+    if (!eckey) {
+        std::cerr << "EC key is not initialized" << std::endl;
+        return "";
+    }
+
+    unsigned char* sig = nullptr;
+    unsigned int sig_len = 0;
+
+    sig = (unsigned char*)OPENSSL_malloc(ECDSA_size(eckey));
+    if (!sig) {
+        std::cerr << "Error allocating memory for signature" << std::endl;
+        return "";
+    }
+
+    if (!ECDSA_sign(0, reinterpret_cast<const unsigned char*>(plainText.c_str()), plainText.size(), sig, &sig_len, eckey)) {
+        std::cerr << "Error signing message" << std::endl;
+        OPENSSL_free(sig);
+        return "";
+    }
+
+    std::string signature(reinterpret_cast<char*>(sig), sig_len);
+    OPENSSL_free(sig);
+    return signature;
+}
+
+std::string Ecdsa::DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const {
+    if (!eckey) {
+        std::cerr << "EC key is not initialized" << std::endl;
+        return "";
+    }
+
+    int result = ECDSA_verify(0, reinterpret_cast<const unsigned char*>(cipherText.c_str()), cipherText.size(),
+        reinterpret_cast<const unsigned char*>(key), 32, eckey);
+
+    if (result < 0) {
+        std::cerr << "Error verifying signature" << std::endl;
+        return "Verification Error";
+    }
+
+    return result == 1 ? "Verification Success" : "Verification Failure";
+}
 
 
