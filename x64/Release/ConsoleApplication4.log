@@ -1,0 +1,4 @@
+﻿  ConsoleApplication4.cpp
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\ConsoleApplication4.cpp(1,10): fatal  error C1083: içerme dosyası açılamıyor: 'openssl/cast.h': No such file or directory
+  SecurityUtil.cpp
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(5,10): fatal  error C1083: içerme dosyası açılamıyor: 'openssl/aes.h': No such file or directory

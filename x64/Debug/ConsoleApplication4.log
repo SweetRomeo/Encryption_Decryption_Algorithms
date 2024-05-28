@@ -1,0 +1,20 @@
+﻿  SecurityUtil.cpp
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(170,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(205,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(249,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(284,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(328,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(363,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(389,72): warning C4267: 'bağımsız değişken': 'size_t' - 'long' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(403,53): warning C4305: 'bağımsız değişken': 'int' iken 'const _Elem' olarak kesildi
+          with
+          [
+              _Elem=char
+          ]
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(403,49): warning C4309: 'bağımsız değişken': sabit değer kesildi
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(407,72): warning C4267: 'bağımsız değişken': 'size_t' - 'long' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(451,159): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(466,162): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(518,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(553,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+  ConsoleApplication4.vcxproj -> C:\Users\BERKE\source\repos\ConsoleApplication4\x64\Debug\ConsoleApplication4.exe
