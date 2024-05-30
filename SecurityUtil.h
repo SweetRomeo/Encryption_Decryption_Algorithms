@@ -110,3 +110,28 @@ public:
 private:
 	DSA* dsa;
 };
+
+class Dh : public AsimetricAlgorithm {
+public:
+	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
+	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
+	void initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE]) override;
+	Dh();
+	~Dh();
+private:
+	DH* dh;
+	BIGNUM* pubKey;
+	BIGNUM* privKey;
+	unsigned char* sharedKey;
+};
+
+class Ecdsa : public AsimetricAlgorithm {
+public:
+	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const final;
+	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const final;
+	void initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE]) override;
+	Ecdsa();
+	~Ecdsa();
+private:
+	EC_KEY* eckey;
+};
