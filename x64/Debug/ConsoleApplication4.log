@@ -23,5 +23,9 @@ C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil
 C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(693,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
 C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(754,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
 C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(772,63): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(866,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(901,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(961,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
+C:\Users\BERKE\source\repos\ConsoleApplication4\ConsoleApplication4\SecurityUtil.cpp(1004,8): warning C4267: 'bağımsız değişken': 'size_t' - 'int' dönüşümü; veri kaybı olabilir
   Kod Üretiliyor...
   ConsoleApplication4.vcxproj -> C:\Users\BERKE\source\repos\ConsoleApplication4\x64\Debug\ConsoleApplication4.exe

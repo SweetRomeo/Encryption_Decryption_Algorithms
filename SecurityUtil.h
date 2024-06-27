@@ -18,6 +18,8 @@ public:
 	virtual ~Algorithm();
 	virtual std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const = 0;
 	virtual std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const = 0;
+	//virtual uint8_t EncryptData(uint8_t plainData, const unsigned char key[16], const unsigned iv[16]) const = 0;
+	//virtual uint8_t DecryptData(uint8_t cipherData, const unsigned char key[16], const unsigned iv[16]) const = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 	//virtual void EncrypFile(/*Parametreler*/);
 	//virtual void DecrypFile(/*Parametreler*/);
@@ -31,6 +33,7 @@ public:
 	virtual ~SimetricAlgorithm();
 	virtual std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	virtual std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
+	//virtual uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 };
 
@@ -40,6 +43,7 @@ public:
 	virtual ~AsimetricAlgorithm() override = default;
 	virtual std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	virtual std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
+	//virtual uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 };
 
@@ -47,6 +51,7 @@ class AES : public SimetricAlgorithm {
 public:
 	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
 	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
+	//uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
 	void TextCryptionTest();
 	void initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE])override;
 };
@@ -134,4 +139,26 @@ public:
 	~Ecdsa();
 private:
 	EC_KEY* eckey;
+};
+
+class Ecdh : public AsimetricAlgorithm {
+public:
+	std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const override;
+	std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const override;
+	void initializeKey(unsigned char key[16], unsigned char iv[16]) override;
+	Ecdh();
+	~Ecdh();
+private:
+	EC_KEY* eckey;
+	unsigned char* sharedKey;
+	int sharedKeyLen;
+};
+
+class ChaCha20 : public SimetricAlgorithm {
+public:
+	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const override;
+	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const override;
+	void initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE]) override;
+	ChaCha20() = default;
+	~ChaCha20() = default;
 };
