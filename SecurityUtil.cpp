@@ -779,4 +779,242 @@ std::string Ecdsa::DecrypText(const std::string& cipherText, const unsigned char
     return result == 1 ? "Verification Success" : "Verification Failure";
 }
 
+Ecdh::Ecdh() : eckey(nullptr), sharedKey(nullptr), sharedKeyLen(0) {}
 
+Ecdh::~Ecdh() {
+    if (eckey) {
+        EC_KEY_free(eckey);
+    }
+    if (sharedKey) {
+        OPENSSL_free(sharedKey);
+    }
+}
+
+void Ecdh::initializeKey(unsigned char key[16], unsigned char iv[16]) {
+    eckey = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+    if (!eckey) {
+        std::cerr << "Error creating EC_KEY structure" << std::endl;
+        return;
+    }
+
+    if (!EC_KEY_generate_key(eckey)) {
+        std::cerr << "Error generating EC key" << std::endl;
+        EC_KEY_free(eckey);
+        eckey = nullptr;
+        return;
+    }
+
+    // Generate a random IV
+    if (!RAND_bytes(iv, 16)) {
+        std::cerr << "Error generating random IV" << std::endl;
+    }
+
+    // For demonstration purposes, we'll generate a shared secret here
+    // In a real application, you would exchange the public key with a peer
+    EC_KEY* peerKey = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+    if (!peerKey) {
+        std::cerr << "Error creating peer EC_KEY structure" << std::endl;
+        return;
+    }
+
+    if (!EC_KEY_generate_key(peerKey)) {
+        std::cerr << "Error generating peer EC key" << std::endl;
+        EC_KEY_free(peerKey);
+        return;
+    }
+
+    const EC_POINT* peerPubKey = EC_KEY_get0_public_key(peerKey);
+    const EC_GROUP* group = EC_KEY_get0_group(eckey);
+    sharedKey = (unsigned char*)OPENSSL_malloc((EC_GROUP_get_degree(group) + 7) / 8);
+    if (!sharedKey) {
+        std::cerr << "Error allocating memory for shared key" << std::endl;
+        EC_KEY_free(peerKey);
+        return;
+    }
+
+    sharedKeyLen = ECDH_compute_key(sharedKey, (EC_GROUP_get_degree(group) + 7) / 8, peerPubKey, eckey, nullptr);
+    if (sharedKeyLen <= 0) {
+        std::cerr << "Error computing shared key" << std::endl;
+        OPENSSL_free(sharedKey);
+        sharedKey = nullptr;
+        EC_KEY_free(peerKey);
+        return;
+    }
+
+    // Use the shared key as the encryption key
+    std::copy(sharedKey, sharedKey + std::min(sharedKeyLen, 16), key);
+    EC_KEY_free(peerKey);
+}
+
+std::string Ecdh::EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const {
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_EncryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key, iv)) {
+        std::cerr << "Error initializing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> ciphertext(plainText.size() + 16);
+    int len;
+    int ciphertext_len;
+
+    if (!EVP_EncryptUpdate(ctx, ciphertext.data(), &len, reinterpret_cast<const unsigned char*>(plainText.c_str()), plainText.size())) {
+        std::cerr << "Error during encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len = len;
+
+    if (!EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len)) {
+        std::cerr << "Error finalizing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(ciphertext.begin(), ciphertext.begin() + ciphertext_len);
+}
+
+std::string Ecdh::DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const {
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key, iv)) {
+        std::cerr << "Error initializing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> plaintext(cipherText.size());
+    int len;
+    int plaintext_len;
+
+    if (!EVP_DecryptUpdate(ctx, plaintext.data(), &len, reinterpret_cast<const unsigned char*>(cipherText.c_str()), cipherText.size())) {
+        std::cerr << "Error during decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len = len;
+
+    if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
+        std::cerr << "Error finalizing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(plaintext.begin(), plaintext.begin() + plaintext_len);
+}
+
+void ChaCha20::initializeKey(unsigned char key[16], unsigned char iv[16]) {
+    unsigned char tempKey[32];
+    unsigned char tempIv[12];
+
+    if (!RAND_bytes(tempKey, 32)) {
+        std::cerr << "Error generating random key" << std::endl;
+        return;
+    }
+    if (!RAND_bytes(tempIv, 12)) {
+        std::cerr << "Error generating random IV" << std::endl;
+        return;
+    }
+
+    std::copy(tempKey, tempKey + 16, key);
+    std::copy(tempIv, tempIv + 12, iv);
+}
+
+std::string ChaCha20::EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const {
+    unsigned char actualKey[32];
+    unsigned char actualIv[12];
+
+    std::copy(key, key + 16, actualKey);
+    std::fill(actualKey + 16, actualKey + 32, 0); // Fill remaining bytes with 0
+
+    std::copy(iv, iv + 12, actualIv);
+
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_EncryptInit_ex(ctx, EVP_chacha20(), NULL, actualKey, actualIv)) {
+        std::cerr << "Error initializing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> ciphertext(plainText.size() + 16);
+    int len;
+    int ciphertext_len;
+
+    if (!EVP_EncryptUpdate(ctx, ciphertext.data(), &len, reinterpret_cast<const unsigned char*>(plainText.c_str()), plainText.size())) {
+        std::cerr << "Error during encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len = len;
+
+    if (!EVP_EncryptFinal_ex(ctx, ciphertext.data() + len, &len)) {
+        std::cerr << "Error finalizing encryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    ciphertext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(ciphertext.begin(), ciphertext.begin() + ciphertext_len);
+}
+
+std::string ChaCha20::DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const {
+    unsigned char actualKey[32];
+    unsigned char actualIv[12];
+
+    std::copy(key, key + 16, actualKey);
+    std::fill(actualKey + 16, actualKey + 32, 0); // Fill remaining bytes with 0
+
+    std::copy(iv, iv + 12, actualIv);
+
+    EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+    if (!ctx) {
+        std::cerr << "Error creating cipher context" << std::endl;
+        return "";
+    }
+
+    if (!EVP_DecryptInit_ex(ctx, EVP_chacha20(), NULL, actualKey, actualIv)) {
+        std::cerr << "Error initializing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+
+    std::vector<unsigned char> plaintext(cipherText.size() + 16);
+    int len;
+    int plaintext_len;
+
+    if (!EVP_DecryptUpdate(ctx, plaintext.data(), &len, reinterpret_cast<const unsigned char*>(cipherText.c_str()), cipherText.size())) {
+        std::cerr << "Error during decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len = len;
+
+    if (!EVP_DecryptFinal_ex(ctx, plaintext.data() + len, &len)) {
+        std::cerr << "Error finalizing decryption" << std::endl;
+        EVP_CIPHER_CTX_free(ctx);
+        return "";
+    }
+    plaintext_len += len;
+
+    EVP_CIPHER_CTX_free(ctx);
+    return std::string(plaintext.begin(), plaintext.begin() + plaintext_len);
+}
