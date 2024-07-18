@@ -9,12 +9,23 @@
 #include <vector>
 #include <sstream>
 #include <chrono>
-#include <concepts>
+#include <random>
 
+void randomFill(std::string& text, int size) {
+    std::string alphaBeth = "abcdefghijklmnqprstuvwxyz";
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> dist(0, alphaBeth.size() - 1);
+
+    for (int i = 0; i < size; ++i) {
+        char randomChar = alphaBeth.at(dist(mt));
+        text.push_back(randomChar);
+    }
+}
 
 void TestAlgorithms() {
     std::vector<std::unique_ptr<Algorithm>> algorithms;
-    algorithms.emplace_back(std::make_unique<AES>());
+    algorithms.emplace_back(std::make_unique<Aes>());
     algorithms.emplace_back(std::make_unique<Seed>());
     algorithms.emplace_back(std::make_unique<Rsa>());
     algorithms.emplace_back(std::make_unique<Cast5>());
@@ -28,7 +39,10 @@ void TestAlgorithms() {
 
     unsigned char key[AES_BLOCK_SIZE] = { 0 };
     unsigned char iv[AES_BLOCK_SIZE] = { 0 };
-    
+
+    std::vector<std::pair<std::string, bool>> Algorithms = { { "RSA", false },{ "DSA", false },{ "DH", false },{ "Chacha20", true },
+         { "Camellia", true }, { "DES", true }, { "RC4", true }, { "AES", true }, { "Seed", true }, {"Cast5", true } };
+
     for (const auto& algorithm : algorithms) {
         auto start = std::chrono::system_clock::now();
         std::stringstream algoType;
@@ -38,10 +52,15 @@ void TestAlgorithms() {
         algoType << typeInfo.name() << std::endl;
         std::string algoTypeTemp = algoType.str();
         algoTypeTemp = algoTypeTemp.substr(6);
-        std::cout << "Algorithm Name : " << algoTypeTemp;
-        //std::cout << "Algorithm Type : ";
-        //std::cout << std::is_base_of_v<SimetricAlgorithm, > << '\n';
-        std::string plaintext = "Hello, World!";
+        algoTypeTemp.erase(std::remove_if(algoTypeTemp.begin(), algoTypeTemp.end(), ::isspace), algoTypeTemp.end());
+        std::cout << "Algorithm Name : " << algoTypeTemp << '\n';
+        for (auto& [AlgoName, isSimetric] : Algorithms) {
+            if(AlgoName == algoTypeTemp)
+            std::cout << "Algorithm Type : " << (isSimetric ? "Simetric" : "Asimetric") << '\n';
+        }
+
+        std::string plaintext;
+        randomFill(plaintext, 100);
         std::string ciphertext = algorithm->EncrypText(plaintext, key, iv);
         std::string decryptedtext = algorithm->DecrypText(ciphertext, key, iv);
         std::cout << "Plaintext : " << plaintext << std::endl;

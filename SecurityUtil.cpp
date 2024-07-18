@@ -19,6 +19,8 @@ Algorithm::~Algorithm()
     std::cout << "Algorithm dtor\n";
 }
 
+
+
 SimetricAlgorithm::SimetricAlgorithm()
 {
     std::cout << "SimetricAlgorithm ctor\n";
@@ -29,7 +31,7 @@ SimetricAlgorithm::~SimetricAlgorithm()
     std::cout << "SimetricAlgorithm dtor\n";
 }
 
-std::string AES::EncrypText(const std::string& plaintext, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const
+std::string Aes::EncrypText(const std::string& plaintext, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const
 {
     AES_KEY encKey;
     AES_set_encrypt_key(key, 128, &encKey);
@@ -49,7 +51,7 @@ std::string AES::EncrypText(const std::string& plaintext, const unsigned char ke
     return ciphertext;
 }
 
-std::string AES::DecrypText(const std::string& ciphertext, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const 
+std::string Aes::DecrypText(const std::string& ciphertext, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const 
 {
     AES_KEY dec_key;
     AES_set_decrypt_key(key, 128, &dec_key);
@@ -68,7 +70,7 @@ std::string AES::DecrypText(const std::string& ciphertext, const unsigned char k
     return decryptedtext;
 }
 
-void AES::TextCryptionTest()
+void Aes::TextCryptionTest()
 {
     unsigned char key[AES_BLOCK_SIZE];
     unsigned char iv[AES_BLOCK_SIZE];
@@ -93,7 +95,7 @@ void AES::TextCryptionTest()
     }
 }
 
-void AES::initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE])
+void Aes::initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE])
 {
     RAND_bytes(key, AES_BLOCK_SIZE);
     RAND_bytes(iv, AES_BLOCK_SIZE);
