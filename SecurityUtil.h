@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 #include <openssl/cast.h>
 #include <openssl/aes.h>
 #include <openssl/seed.h>
@@ -23,8 +24,6 @@ public:
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 	//virtual void EncrypFile(/*Parametreler*/);
 	//virtual void DecrypFile(/*Parametreler*/);
-protected:
-	decltype(auto) calculateAlgorithmEfficiency();
 };
 
 class SimetricAlgorithm : public Algorithm {
@@ -47,7 +46,7 @@ public:
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 };
 
-class AES : public SimetricAlgorithm {
+class Aes : public SimetricAlgorithm {
 public:
 	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
 	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
