@@ -22,8 +22,8 @@ public:
 	//virtual uint8_t EncryptData(uint8_t plainData, const unsigned char key[16], const unsigned iv[16]) const = 0;
 	//virtual uint8_t DecryptData(uint8_t cipherData, const unsigned char key[16], const unsigned iv[16]) const = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
-	//virtual void EncrypFile(/*Parametreler*/);
-	//virtual void DecrypFile(/*Parametreler*/);
+	//virtual void EncrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) = 0;
+	//virtual void DecrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) = 0;
 };
 
 class SimetricAlgorithm : public Algorithm {
@@ -33,6 +33,8 @@ public:
 	virtual std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	virtual std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	//virtual uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
+	//virtual void EncrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) = 0;
+	//virtual void DecrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 };
 
@@ -43,6 +45,8 @@ public:
 	virtual std::string EncrypText(const std::string& plainText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	virtual std::string DecrypText(const std::string& cipherText, const unsigned char key[16], const unsigned char iv[16]) const override = 0;
 	//virtual uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
+	//virtual void EncrypFile(/*Parametreler*/) = 0;
+	//virtual void DecrypFile(/*Parametreler*/) = 0;
 	virtual void initializeKey(unsigned char key[16], unsigned char iv[16]) = 0;
 };
 
@@ -51,6 +55,8 @@ public:
 	std::string EncrypText(const std::string& plainText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
 	std::string DecrypText(const std::string& cipherText, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE])const final;
 	//uint8_t EncryptData(uint8_t data, const unsigned char key[16], const unsigned iv[16]) const override = 0;
+	virtual void EncrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]);
+	virtual void DecrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]);
 	void TextCryptionTest();
 	void initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE])override;
 };
