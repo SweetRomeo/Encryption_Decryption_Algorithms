@@ -8,6 +8,7 @@
 #include <chrono>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 Algorithm::Algorithm()
 {
@@ -70,6 +71,63 @@ std::string Aes::DecrypText(const std::string& ciphertext, const unsigned char k
     return decryptedtext;
 }
 
+void Aes::EncrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) {
+    std::ifstream inFile(inputFileName, std::ios::binary);
+    if (!inFile.is_open()) {
+        throw std::runtime_error("Unable to open input file for reading");
+    }
+
+    std::vector<unsigned char> content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    inFile.close();
+
+    AES_KEY encryptKey;
+    AES_set_encrypt_key(key, 128, &encryptKey);
+
+    std::vector<unsigned char> cipherContent(content.size());
+    int num = 0;
+    unsigned char currentIV[AES_BLOCK_SIZE];
+    memcpy(currentIV, iv, AES_BLOCK_SIZE);
+
+    AES_cfb128_encrypt(content.data(), cipherContent.data(), content.size(), &encryptKey, currentIV, &num, AES_ENCRYPT);
+
+    std::ofstream outFile(outputFileName, std::ios::binary);
+    if (!outFile.is_open()) {
+        throw std::runtime_error("Unable to open output file for writing");
+    }
+
+    outFile.write(reinterpret_cast<char*>(cipherContent.data()), cipherContent.size());
+    outFile.close();
+}
+
+// Dosya deþifreleme fonksiyonu
+void Aes::DecrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) {
+    std::ifstream inFile(inputFileName, std::ios::binary);
+    if (!inFile.is_open()) {
+        throw std::runtime_error("Unable to open input file for reading");
+    }
+
+    std::vector<unsigned char> content((std::istreambuf_iterator<char>(inFile)), std::istreambuf_iterator<char>());
+    inFile.close();
+
+    AES_KEY decryptKey;
+    AES_set_decrypt_key(key, 128, &decryptKey);
+
+    std::vector<unsigned char> plainContent(content.size());
+    int num = 0;
+    unsigned char currentIV[AES_BLOCK_SIZE];
+    memcpy(currentIV, iv, AES_BLOCK_SIZE);
+
+    AES_cfb128_encrypt(content.data(), plainContent.data(), content.size(), &decryptKey, currentIV, &num, AES_DECRYPT);
+
+    std::ofstream outFile(outputFileName, std::ios::binary);
+    if (!outFile.is_open()) {
+        throw std::runtime_error("Unable to open output file for writing");
+    }
+
+    outFile.write(reinterpret_cast<char*>(plainContent.data()), plainContent.size());
+    outFile.close();
+}
+
 void Aes::TextCryptionTest()
 {
     unsigned char key[AES_BLOCK_SIZE];
@@ -97,8 +155,9 @@ void Aes::TextCryptionTest()
 
 void Aes::initializeKey(unsigned char key[AES_BLOCK_SIZE], unsigned char iv[AES_BLOCK_SIZE])
 {
-    RAND_bytes(key, AES_BLOCK_SIZE);
-    RAND_bytes(iv, AES_BLOCK_SIZE);
+    if (!RAND_bytes(key, AES_BLOCK_SIZE) || !RAND_bytes(iv, AES_BLOCK_SIZE)) {
+        throw std::runtime_error("Unable to generate key and IV");
+    }
 }
 
 std::string Seed::EncrypText(const std::string& plainText, const unsigned char key[SEED_KEY_LENGTH], const unsigned char iv[SEED_BLOCK_SIZE])const  
