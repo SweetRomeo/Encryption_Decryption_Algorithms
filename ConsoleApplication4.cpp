@@ -149,9 +149,9 @@ void TestAlgorithms() {
 //}
 
 template <typename AlgoType>
-std::string getAlgorithmInfoString(AlgoType algo)
-{
-    std::unique_ptr<Algorithm> algorithm = std::make_unique<AlgoType>(algo);
+std::string getAlgorithmInfoString(AlgoType& algo) {
+    // AlgoType nesnesini kopyalamak yerine referans olarak kullanıyoruz.
+    Algorithm* algorithm = &algo;
 
     unsigned char key[AES_BLOCK_SIZE] = { 0 };
     unsigned char iv[AES_BLOCK_SIZE] = { 0 };
@@ -161,8 +161,7 @@ std::string getAlgorithmInfoString(AlgoType algo)
     algorithm->initializeKey(key, iv);
     const std::type_info& typeInfo = typeid(*algorithm);
     algoType << typeInfo.name() << '\n';
-    std::string algoTypeTemp = algoType.str();
-    algoTypeTemp = algoTypeTemp.substr(6);
+    std::string algoTypeTemp = algoType.str().substr(6);
     std::stringstream algoInfoText;
     algoInfoText << "Algorithm Name :" << algoTypeTemp;
     std::string plainText = "Hello, World!";
@@ -180,22 +179,22 @@ std::string getAlgorithmInfoString(AlgoType algo)
         algoInfoText << "Test Passed: Decryption text matches the original plaintext." << '\n';
     }
     else {
-        algoInfoText << "Test Failed: Decryption text match the original plaintext." << '\n';
+        algoInfoText << "Test Failed: Decryption text does not match the original plaintext." << '\n';
     }
 
     auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elasped_seconds = end - start;
+    std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 
-    algoInfoText << "finished computation at " << std::ctime(&end_time)
-                 << "elapsed time : " << elasped_seconds.count() << "s" << '\n';
+    algoInfoText << "Finished computation at " << std::ctime(&end_time)
+        << "Elapsed time : " << elapsed_seconds.count() << "s" << '\n';
 
     return algoInfoText.str();
 }
 
 HWND AesAlgorithmButton, SeedAlgorithmButton, RsaAlgorithmButton,
-     Cast5AlgorithmButton, CamelliaAlgorithmButton, DsaAlgorithmButton,
-     Chacha20AlgorithmButton, DhAlgorithmButton;
+Cast5AlgorithmButton, CamelliaAlgorithmButton, DsaAlgorithmButton,
+Chacha20AlgorithmButton, DhAlgorithmButton;
 
 HWND hStaticText;  // Kalıcı metin göstermek için Static kontrol
 
@@ -207,68 +206,72 @@ std::wstring convertToWString(const std::string& str) {
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    static WCHAR tempText[1000]; // Geçici metin tutmak için bir buffer
 
-    static WCHAR tempText[100]; // Geçici metin tutmak için bir buffer
-
+    // Algoritma nesnelerini static olarak tanımlıyoruz
     static Aes aes;
-    auto buttonPressText = getAlgorithmInfoString(aes);
-    std::wstring wideButtonPressText = convertToWString(buttonPressText); // std::string'i std::wstring'e çevirme
+    static Seed seed;
+    static Rsa rsa;
+    static Cast5 cast5;
+    static Camellia camellia;
+    static Dsa dsa;
+    static ChaCha20 chacha20;
+    static Dh dh;
+    static std::string buttonPressText;
+    static std::wstring wideButtonPressText; // std::string'i std::wstring'e çevirme
 
     switch (uMsg) {
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;
     case WM_COMMAND:
+        // Button Press işlemleri
         switch (LOWORD(wParam)) {
-            case 1:
-                MessageBox(hwnd, L"AES Algorithm Service has started", L"AES", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(AesAlgorithmButton, L"Aes");
-                SetFocus(AesAlgorithmButton);
-                wcscpy(tempText, wideButtonPressText.c_str());
-                break;
-            case 2:
-                MessageBox(hwnd, L"Seed Algorithm Service has started", L"Seed", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(SeedAlgorithmButton, L"Seed");
-                SetFocus(SeedAlgorithmButton);
-                wcscpy(tempText, L"Seed Algorithm Selected");
-                break;
-            case 3:
-                MessageBox(hwnd, L"Rsa Algorithm Service has started", L"RSA", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(RsaAlgorithmButton, L"Rsa");
-                SetFocus(RsaAlgorithmButton);
-                wcscpy(tempText, L"RSA Algorithm Selected");
-                break;
-            case 4:
-                MessageBox(hwnd, L"Cast5 Algorithm Service has started", L"Cast5", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(Cast5AlgorithmButton, L"Cast5");
-                SetFocus(Cast5AlgorithmButton);
-                wcscpy(tempText, L"Cast5 Algorithm Selected");
-                break;
-            case 5:
-                MessageBox(hwnd, L"Camellia Algorithm Service has started", L"Camellia", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(CamelliaAlgorithmButton, L"Camellia");
-                SetFocus(CamelliaAlgorithmButton);
-                wcscpy(tempText, L"Camellia Algorithm Selected");
-                break;
-            case 6:
-                MessageBox(hwnd, L"Dsa Algorithm Service has started", L"DSA", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(DsaAlgorithmButton, L"Dsa");
-                SetFocus(DsaAlgorithmButton);
-                wcscpy(tempText, L"DSA Algorithm Selected");
-                break;
-            case 7:
-                MessageBox(hwnd, L"Chacha20 Algorithm Service has started", L"Chacha20", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(Chacha20AlgorithmButton, L"Chacha20");
-                SetFocus(Chacha20AlgorithmButton);
-                wcscpy(tempText, L"Chacha20 Algorithm Selected");
-                break;
-            case 8:
-                MessageBox(hwnd, L"Dh Algorithm Service has started", L"Dh", MB_OK | MB_ICONINFORMATION);
-                SetWindowText(DhAlgorithmButton, L"Dh");
-                SetFocus(DhAlgorithmButton);
-                wcscpy(tempText, L"DH Algorithm Selected");
-                break;
+        case 1:
+            MessageBox(hwnd, L"AES Algorithm Service has started", L"AES", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(AesAlgorithmButton, L"Aes");
+            buttonPressText = getAlgorithmInfoString(aes);
+            break;
+        case 2:
+            MessageBox(hwnd, L"Seed Algorithm Service has started", L"Seed", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(SeedAlgorithmButton, L"Seed");
+            buttonPressText = getAlgorithmInfoString(seed);
+            break;
+        case 3:
+            MessageBox(hwnd, L"RSA Algorithm Service has started", L"RSA", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(RsaAlgorithmButton, L"Rsa");
+            buttonPressText = getAlgorithmInfoString(rsa);
+            break;
+        case 4:
+            MessageBox(hwnd, L"Cast5 Algorithm Service has started", L"Cast5", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(Cast5AlgorithmButton, L"Cast5");
+            buttonPressText = getAlgorithmInfoString(cast5);
+            break;
+        case 5:
+            MessageBox(hwnd, L"Camellia Algorithm Service has started", L"Camellia", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(CamelliaAlgorithmButton, L"Camellia");
+            buttonPressText = getAlgorithmInfoString(camellia);
+            break;
+        case 6:
+            MessageBox(hwnd, L"DSA Algorithm Service has started", L"DSA", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(DsaAlgorithmButton, L"Dsa");
+            buttonPressText = getAlgorithmInfoString(dsa);
+            break;
+        case 7:
+            MessageBox(hwnd, L"ChaCha20 Algorithm Service has started", L"ChaCha20", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(Chacha20AlgorithmButton, L"ChaCha20");
+            buttonPressText = getAlgorithmInfoString(chacha20);
+            break;
+        case 8:
+            MessageBox(hwnd, L"DH Algorithm Service has started", L"DH", MB_OK | MB_ICONINFORMATION);
+            SetWindowText(DhAlgorithmButton, L"Dh");
+            buttonPressText = getAlgorithmInfoString(dh);
+            break;
         }
+        // Metni geniş karakter setine dönüştür
+        wideButtonPressText = convertToWString(buttonPressText);
+        // Geçici buffer'a kopyala
+        wcscpy_s(tempText, wideButtonPressText.c_str());
         // Static kontrol üzerinde kalıcı olarak metni güncelle
         SetWindowText(hStaticText, tempText);
         return 0;
@@ -276,8 +279,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
 
-        std::string text = "Hello, World!";
-        TextOut(hdc, 50, 50, reinterpret_cast<LPCWSTR>(text.c_str()), text.size());
+        // Bu kısımda `std::wstring` kullanıyoruz.
+        std::wstring text = L"Hello, World!";
+        TextOut(hdc, 50, 50, text.c_str(), text.size());
 
         EndPaint(hwnd, &ps);
     }
