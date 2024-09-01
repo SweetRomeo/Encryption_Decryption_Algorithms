@@ -148,11 +148,72 @@ void TestAlgorithms() {
 //    outFile.close();
 //}
 
+template <typename AlgoType>
+std::string getAlgorithmInfoString(AlgoType algo)
+{
+    std::unique_ptr<Algorithm> algorithm = std::make_unique<AlgoType>(algo);
+
+    unsigned char key[AES_BLOCK_SIZE] = { 0 };
+    unsigned char iv[AES_BLOCK_SIZE] = { 0 };
+
+    auto start = std::chrono::system_clock::now();
+    std::stringstream algoType;
+    algorithm->initializeKey(key, iv);
+    const std::type_info& typeInfo = typeid(*algorithm);
+    algoType << typeInfo.name() << '\n';
+    std::string algoTypeTemp = algoType.str();
+    algoTypeTemp = algoTypeTemp.substr(6);
+    std::stringstream algoInfoText;
+    algoInfoText << "Algorithm Name :" << algoTypeTemp;
+    std::string plainText = "Hello, World!";
+    std::string cipherText = algorithm->EncrypText(plainText, key, iv);
+    std::string decryptedText = algorithm->DecrypText(cipherText, key, iv);
+    algoInfoText << "Plaintext : " << plainText << '\n';
+    algoInfoText << "Ciphertext : ";
+    for (unsigned char c : cipherText) {
+        algoInfoText << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+    }
+    algoInfoText << '\n';
+    algoInfoText << "Decrypted text : " << decryptedText << '\n';
+
+    if (plainText == decryptedText) {
+        algoInfoText << "Test Passed: Decryption text matches the original plaintext." << '\n';
+    }
+    else {
+        algoInfoText << "Test Failed: Decryption text match the original plaintext." << '\n';
+    }
+
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elasped_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    algoInfoText << "finished computation at " << std::ctime(&end_time)
+                 << "elapsed time : " << elasped_seconds.count() << "s" << '\n';
+
+    return algoInfoText.str();
+}
+
 HWND AesAlgorithmButton, SeedAlgorithmButton, RsaAlgorithmButton,
      Cast5AlgorithmButton, CamelliaAlgorithmButton, DsaAlgorithmButton,
      Chacha20AlgorithmButton, DhAlgorithmButton;
 
+HWND hStaticText;  // Kalıcı metin göstermek için Static kontrol
+
+std::wstring convertToWString(const std::string& str) {
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), NULL, 0);
+    std::wstring wstr(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), (int)str.size(), &wstr[0], size_needed);
+    return wstr;
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+
+    static WCHAR tempText[100]; // Geçici metin tutmak için bir buffer
+
+    static Aes aes;
+    auto buttonPressText = getAlgorithmInfoString(aes);
+    std::wstring wideButtonPressText = convertToWString(buttonPressText); // std::string'i std::wstring'e çevirme
+
     switch (uMsg) {
     case WM_DESTROY:
         PostQuitMessage(0);
@@ -163,43 +224,53 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 MessageBox(hwnd, L"AES Algorithm Service has started", L"AES", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(AesAlgorithmButton, L"Aes");
                 SetFocus(AesAlgorithmButton);
+                wcscpy(tempText, wideButtonPressText.c_str());
                 break;
             case 2:
                 MessageBox(hwnd, L"Seed Algorithm Service has started", L"Seed", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(SeedAlgorithmButton, L"Seed");
                 SetFocus(SeedAlgorithmButton);
+                wcscpy(tempText, L"Seed Algorithm Selected");
                 break;
             case 3:
                 MessageBox(hwnd, L"Rsa Algorithm Service has started", L"RSA", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(RsaAlgorithmButton, L"Rsa");
                 SetFocus(RsaAlgorithmButton);
+                wcscpy(tempText, L"RSA Algorithm Selected");
                 break;
             case 4:
                 MessageBox(hwnd, L"Cast5 Algorithm Service has started", L"Cast5", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(Cast5AlgorithmButton, L"Cast5");
                 SetFocus(Cast5AlgorithmButton);
+                wcscpy(tempText, L"Cast5 Algorithm Selected");
                 break;
             case 5:
                 MessageBox(hwnd, L"Camellia Algorithm Service has started", L"Camellia", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(CamelliaAlgorithmButton, L"Camellia");
                 SetFocus(CamelliaAlgorithmButton);
+                wcscpy(tempText, L"Camellia Algorithm Selected");
                 break;
             case 6:
                 MessageBox(hwnd, L"Dsa Algorithm Service has started", L"DSA", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(DsaAlgorithmButton, L"Dsa");
                 SetFocus(DsaAlgorithmButton);
+                wcscpy(tempText, L"DSA Algorithm Selected");
                 break;
             case 7:
                 MessageBox(hwnd, L"Chacha20 Algorithm Service has started", L"Chacha20", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(Chacha20AlgorithmButton, L"Chacha20");
                 SetFocus(Chacha20AlgorithmButton);
+                wcscpy(tempText, L"Chacha20 Algorithm Selected");
                 break;
             case 8:
                 MessageBox(hwnd, L"Dh Algorithm Service has started", L"Dh", MB_OK | MB_ICONINFORMATION);
                 SetWindowText(DhAlgorithmButton, L"Dh");
                 SetFocus(DhAlgorithmButton);
+                wcscpy(tempText, L"DH Algorithm Selected");
                 break;
         }
+        // Static kontrol üzerinde kalıcı olarak metni güncelle
+        SetWindowText(hStaticText, tempText);
         return 0;
     case WM_PAINT: {
         PAINTSTRUCT ps;
@@ -340,7 +411,18 @@ void CreateWindowTest()
         nullptr
     );
 
-    // Mesaj döngüsü
+    hStaticText = CreateWindow(
+        L"STATIC",
+        L"Please select an Algorithm",  // Başlangıç metni
+        WS_VISIBLE | WS_CHILD,
+        200, 100, 800, 500,  // Bu kısmı arayüzde görmek istediğiniz yere göre ayarlayabilirsiniz
+        hwnd,
+        nullptr,
+        hInstance,
+        nullptr
+    );
+
+    //Mesaj döngüsü
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
