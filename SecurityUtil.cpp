@@ -34,6 +34,7 @@ SimetricAlgorithm::~SimetricAlgorithm()
 
 std::string Aes::EncrypText(const std::string& plaintext, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) const
 {
+    //std::cout << "Aes EncrypText\n";
     AES_KEY encKey;
     AES_set_encrypt_key(key, 128, &encKey);
 
