@@ -14,82 +14,89 @@
 #include <thread>
 #include <windows.h>
 
+#define IDC_LENGTH_LABEL 1010 // Label için benzersiz bir ID
+#define IDC_SIZE_EDIT    1011 // Edit control için benzersiz bir ID
+#define IDC_GENERATE_BUTTON 1012 // Button ID
+
 void randomFill(std::string& text, int size) {
+    text.clear();
+    text.reserve(size);
+    text.shrink_to_fit();
     std::string alphaBeth = "abcdefghijklmnqprstuvwxyz";
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<int> dist(0, alphaBeth.size() - 1);
 
     for (int i = 0; i < size; ++i) {
-        char randomChar = alphaBeth.at(dist(mt));
+        char randomChar = alphaBeth[dist(mt)];  // operator[] kullanıyoruz, sınır denetimi yok
         text.push_back(randomChar);
     }
 }
 
-void TestAlgorithms() {
-    std::vector<std::unique_ptr<Algorithm>> algorithms;
-    algorithms.emplace_back(std::make_unique<Aes>());
-    algorithms.emplace_back(std::make_unique<Seed>());
-    algorithms.emplace_back(std::make_unique<Rsa>());
-    algorithms.emplace_back(std::make_unique<Cast5>());
-    algorithms.emplace_back(std::make_unique<Camellia>());
-    algorithms.emplace_back(std::make_unique<Dsa>());
-    algorithms.emplace_back(std::make_unique<ChaCha20>());
-    algorithms.emplace_back(std::make_unique<Dh>());
-    //algorithms.emplace_back(std::make_unique<Ecdsa>());
-    //algorithms.emplace_back(std::make_unique<Idea>());
-    //algorithms.emplace_back(std::make_unique<Blowfish>());
-
-    unsigned char key[AES_BLOCK_SIZE] = { 0 };
-    unsigned char iv[AES_BLOCK_SIZE] = { 0 };
-
-    std::vector<std::pair<std::string, bool>> Algorithms = { { "RSA", false },{ "DSA", false },{ "DH", false },{ "Chacha20", true },
-         { "Camellia", true }, { "DES", true }, { "RC4", true }, { "AES", true }, { "Seed", true }, {"Cast5", true } };
-
-    for (const auto& algorithm : algorithms) {
-        auto start = std::chrono::system_clock::now();
-        std::stringstream algoType;
-        algorithm->initializeKey(key, iv);
-
-        const std::type_info& typeInfo = typeid(*algorithm);
-        algoType << typeInfo.name() << std::endl;
-        std::string algoTypeTemp = algoType.str();
-        algoTypeTemp = algoTypeTemp.substr(6);
-        algoTypeTemp.erase(std::remove_if(algoTypeTemp.begin(), algoTypeTemp.end(), ::isspace), algoTypeTemp.end());
-        std::cout << "Algorithm Name : " << algoTypeTemp << '\n';
-        for (auto& [AlgoName, isSimetric] : Algorithms) {
-            if(AlgoName == algoTypeTemp)
-            std::cout << "Algorithm Type : " << (isSimetric ? "Simetric" : "Asimetric") << '\n';
-        }
-
-        std::string plaintext;
-        randomFill(plaintext, 100);
-        std::string ciphertext = algorithm->EncrypText(plaintext, key, iv);
-        std::string decryptedtext = algorithm->DecrypText(ciphertext, key, iv);
-        std::cout << "Plaintext : " << plaintext << std::endl;
-        std::cout << "Ciphertext : ";
-        for (unsigned char c : ciphertext) {
-            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)c;
-        }
-        std::cout << std::endl;
-        std::cout << "Decrypted text: " << decryptedtext << std::endl;
-
-        if (plaintext == decryptedtext) {
-            std::cout << "Test Passed: Decrypted text matches the original plaintext." << std::endl;
-        }
-        else {
-            std::cout << "Test Failed: Decrypted text does not match the original plaintext." << std::endl;
-        }
-        auto end = std::chrono::system_clock::now();
-        std::chrono::duration<double> elapsed_seconds = end - start;
-        std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-
-        std::cout << "finished computation at " << std::ctime(&end_time)
-            << "elapsed time: " << elapsed_seconds.count() << "s"
-            << '\n';
-        std::cout << "**************************\n";
-    }
-}
+//void TestAlgorithms() {
+//    std::vector<std::unique_ptr<Algorithm>> algorithms;
+//    algorithms.emplace_back(std::make_unique<Aes>());
+//    algorithms.emplace_back(std::make_unique<Seed>());
+//    algorithms.emplace_back(std::make_unique<Rsa>());
+//    algorithms.emplace_back(std::make_unique<Cast5>());
+//    algorithms.emplace_back(std::make_unique<Camellia>());
+//    algorithms.emplace_back(std::make_unique<Dsa>());
+//    algorithms.emplace_back(std::make_unique<ChaCha20>());
+//    algorithms.emplace_back(std::make_unique<Dh>());
+//    //algorithms.emplace_back(std::make_unique<Ecdsa>());
+//    //algorithms.emplace_back(std::make_unique<Idea>());
+//    //algorithms.emplace_back(std::make_unique<Blowfish>());
+//
+//    unsigned char key[AES_BLOCK_SIZE] = { 0 };
+//    unsigned char iv[AES_BLOCK_SIZE] = { 0 };
+//
+//    std::vector<std::pair<std::string, bool>> Algorithms = { { "RSA", false },{ "DSA", false },{ "DH", false },{ "Chacha20", true },
+//         { "Camellia", true }, { "DES", true }, { "RC4", true }, { "AES", true }, { "Seed", true }, {"Cast5", true } };
+//
+//    for (const auto& algorithm : algorithms) {
+//        auto start = std::chrono::system_clock::now();
+//        std::stringstream algoType;
+//        algorithm->initializeKey(key, iv);
+//
+//        const std::type_info& typeInfo = typeid(*algorithm);
+//        algoType << typeInfo.name() << std::endl;
+//        std::string algoTypeTemp = algoType.str();
+//        algoTypeTemp = algoTypeTemp.substr(6);
+//        algoTypeTemp.erase(std::remove_if(algoTypeTemp.begin(), algoTypeTemp.end(), ::isspace), algoTypeTemp.end());
+//        std::cout << "Algorithm Name : " << algoTypeTemp << '\n';
+//        for (auto& [AlgoName, isSimetric] : Algorithms) {
+//            if(AlgoName == algoTypeTemp)
+//            std::cout << "Algorithm Type : " << (isSimetric ? "Simetric" : "Asimetric") << '\n';
+//        }
+//
+//        std::string plaintext;
+//        randomFill(plaintext, 100);
+//        std::string ciphertext = algorithm->EncrypText(plaintext, key, iv);
+//        std::string decryptedtext = algorithm->DecrypText(ciphertext, key, iv);
+//        std::cout << "Plaintext : " << plaintext << std::endl;
+//        std::cout << "Ciphertext : ";
+//        for (unsigned char c : ciphertext) {
+//            std::cout << std::hex << std::setw(2) << std::setfill('0') << (int)c;
+//        }
+//        std::cout << std::endl;
+//        std::cout << "Decrypted text: " << decryptedtext << std::endl;
+//
+//        if (plaintext == decryptedtext) {
+//            std::cout << "Test Passed: Decrypted text matches the original plaintext." << std::endl;
+//        }
+//        else {
+//            std::cout << "Test Failed: Decrypted text does not match the original plaintext." << std::endl;
+//        }
+//        auto end = std::chrono::system_clock::now();
+//        std::chrono::duration<double> elapsed_seconds = end - start;
+//        std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+//
+//        std::cout << "finished computation at " << std::ctime(&end_time)
+//            << "elapsed time: " << elapsed_seconds.count() << "s"
+//            << '\n';
+//        std::cout << "**************************\n";
+//    }
+//}
 //
 //void EncrypFile(const std::string& inputFileName, const std::string& outputFileName, const unsigned char key[AES_BLOCK_SIZE], const unsigned char iv[AES_BLOCK_SIZE]) {
 //    std::ifstream inFile(inputFileName, std::ios::binary);
@@ -149,7 +156,7 @@ void TestAlgorithms() {
 //}
 
 template <typename AlgoType>
-std::string getAlgorithmInfoString(AlgoType& algo) {
+std::string getAlgorithmInfoString(AlgoType& algo, int textLength) {
     // AlgoType nesnesini kopyalamak yerine referans olarak kullanıyoruz.
     Algorithm* algorithm = &algo;
 
@@ -164,7 +171,9 @@ std::string getAlgorithmInfoString(AlgoType& algo) {
     std::string algoTypeTemp = algoType.str().substr(6);
     std::stringstream algoInfoText;
     algoInfoText << "Algorithm Name :" << algoTypeTemp;
-    std::string plainText = "Hello, World!";
+    std::string plainText;
+    randomFill(plainText, textLength);
+    //std::cout << "After random Fill\n";
     std::string cipherText = algorithm->EncrypText(plainText, key, iv);
     std::string decryptedText = algorithm->DecrypText(cipherText, key, iv);
     algoInfoText << "Plaintext : " << plainText << '\n';
@@ -194,7 +203,7 @@ std::string getAlgorithmInfoString(AlgoType& algo) {
 
 HWND AesAlgorithmButton, SeedAlgorithmButton, RsaAlgorithmButton,
 Cast5AlgorithmButton, CamelliaAlgorithmButton, DsaAlgorithmButton,
-Chacha20AlgorithmButton, DhAlgorithmButton;
+Chacha20AlgorithmButton, DhAlgorithmButton, hSizeEdit;
 
 HWND hStaticText;  // Kalıcı metin göstermek için Static kontrol
 
@@ -219,6 +228,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     static Dh dh;
     static std::string buttonPressText;
     static std::wstring wideButtonPressText; // std::string'i std::wstring'e çevirme
+    static int size = 10;
 
     switch (uMsg) {
     case WM_DESTROY:
@@ -230,42 +240,58 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         case 1:
             MessageBox(hwnd, L"AES Algorithm Service has started", L"AES", MB_OK | MB_ICONINFORMATION);
             SetWindowText(AesAlgorithmButton, L"Aes");
-            buttonPressText = getAlgorithmInfoString(aes);
+            buttonPressText = getAlgorithmInfoString(aes, size);
             break;
         case 2:
             MessageBox(hwnd, L"Seed Algorithm Service has started", L"Seed", MB_OK | MB_ICONINFORMATION);
             SetWindowText(SeedAlgorithmButton, L"Seed");
-            buttonPressText = getAlgorithmInfoString(seed);
+            buttonPressText = getAlgorithmInfoString(seed, size);
             break;
         case 3:
             MessageBox(hwnd, L"RSA Algorithm Service has started", L"RSA", MB_OK | MB_ICONINFORMATION);
             SetWindowText(RsaAlgorithmButton, L"Rsa");
-            buttonPressText = getAlgorithmInfoString(rsa);
+            buttonPressText = getAlgorithmInfoString(rsa, size);
             break;
         case 4:
             MessageBox(hwnd, L"Cast5 Algorithm Service has started", L"Cast5", MB_OK | MB_ICONINFORMATION);
             SetWindowText(Cast5AlgorithmButton, L"Cast5");
-            buttonPressText = getAlgorithmInfoString(cast5);
+            buttonPressText = getAlgorithmInfoString(cast5, size);
             break;
         case 5:
             MessageBox(hwnd, L"Camellia Algorithm Service has started", L"Camellia", MB_OK | MB_ICONINFORMATION);
             SetWindowText(CamelliaAlgorithmButton, L"Camellia");
-            buttonPressText = getAlgorithmInfoString(camellia);
+            buttonPressText = getAlgorithmInfoString(camellia, size);
             break;
         case 6:
             MessageBox(hwnd, L"DSA Algorithm Service has started", L"DSA", MB_OK | MB_ICONINFORMATION);
             SetWindowText(DsaAlgorithmButton, L"Dsa");
-            buttonPressText = getAlgorithmInfoString(dsa);
+            buttonPressText = getAlgorithmInfoString(dsa, size);
             break;
         case 7:
             MessageBox(hwnd, L"ChaCha20 Algorithm Service has started", L"ChaCha20", MB_OK | MB_ICONINFORMATION);
             SetWindowText(Chacha20AlgorithmButton, L"ChaCha20");
-            buttonPressText = getAlgorithmInfoString(chacha20);
+            buttonPressText = getAlgorithmInfoString(chacha20, size);
             break;
         case 8:
             MessageBox(hwnd, L"DH Algorithm Service has started", L"DH", MB_OK | MB_ICONINFORMATION);
             SetWindowText(DhAlgorithmButton, L"Dh");
-            buttonPressText = getAlgorithmInfoString(dh);
+            buttonPressText = getAlgorithmInfoString(dh, size);
+            break;
+        case IDC_GENERATE_BUTTON:
+            char sizeText[10];
+            GetWindowTextA(hSizeEdit, sizeText, 10);
+            if (atoi(sizeText) > 10000) {
+                MessageBox(hwnd, L"Size value is too large", L"Error", MB_OK || MB_ICONERROR);
+                return -1;
+            }
+            if (atoi(sizeText) <= 0) {
+                MessageBox(hwnd, L"Invalid size value", L"Error", MB_OK | MB_ICONERROR);
+                return -1;
+            }
+            size = atoi(sizeText); // Text'i integer'a çevirir
+            // Size değerini randomFill ile kullan
+            //std::string buffer;
+            //randomFill(buffer, size);
             break;
         }
         // Metni geniş karakter setine dönüştür
@@ -280,8 +306,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         HDC hdc = BeginPaint(hwnd, &ps);
 
         // Bu kısımda `std::wstring` kullanıyoruz.
-        std::wstring text = L"Hello, World!";
-        TextOut(hdc, 50, 50, text.c_str(), text.size());
+        std::wstring text = L"Berke's Program";
+        TextOut(hdc, 50, 10, text.c_str(), text.size());
 
         EndPaint(hwnd, &ps);
     }
@@ -425,6 +451,34 @@ void CreateWindowTest()
         hInstance,
         nullptr
     );
+
+    HWND hLengthLabel = CreateWindowW(L"STATIC", 
+        L"Length:",
+        WS_CHILD | WS_VISIBLE,
+        50, 50, 50, 20,
+        hwnd, 
+        (HMENU)IDC_LENGTH_LABEL,
+        hInstance, 
+        nullptr);
+
+    hSizeEdit = CreateWindow(L"EDIT", 
+        nullptr,
+        WS_VISIBLE | WS_CHILD | WS_BORDER | ES_NUMBER,
+        120, 50, 100, 20,
+        hwnd, 
+        (HMENU)IDC_SIZE_EDIT, 
+        hInstance, 
+        nullptr);
+
+    // Generate button
+    HWND hGenerateButton = CreateWindowW(L"BUTTON", 
+        L"Generate",
+        WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+        240, 50, 100, 30,
+        hwnd, 
+        (HMENU)IDC_GENERATE_BUTTON, 
+        hInstance, 
+        nullptr);
 
     //Mesaj döngüsü
     MSG msg = {};
