@@ -1,10 +1,12 @@
-# 🔐 Encryption & Decryption Algorithms
+# ⚡ CryptoBenchmark: Encryption & Decryption Timer
 
 [![C++](https://img.shields.io/badge/C%2B%2B-17-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.0-721412?style=for-the-badge&logo=openssl&logoColor=white)](https://www.openssl.org/)
+[![Performance](https://img.shields.io/badge/Performance-Benchmark-brightgreen?style=for-the-badge&logo=speedtest&logoColor=white)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-**Implementation of secure encryption and decryption algorithms using the OpenSSL library.** *OpenSSL kütüphanesi kullanılarak güvenli şifreleme ve şifre çözme algoritmalarının uygulanması.*
+**A desktop application to calculate and compare the execution time of various decryption algorithms.**
+*Farklı şifre çözme algoritmalarının işlem sürelerini hesaplayan ve karşılaştıran masaüstü uygulaması.*
 
 🌍 **Language / Dil**
 [🇺🇸 English](#-english) | [🇹🇷 Türkçe](#-türkçe)
@@ -16,46 +18,43 @@
 
 ### 🎯 About the Project
 
-This repository contains C++ implementations of various cryptographic algorithms powered by the **OpenSSL** library. It serves as a practical guide and codebase for understanding how to implement secure data encryption and decryption in C++ applications.
+This desktop application is designed to measure the performance of cryptographic algorithms. It utilizes the **OpenSSL** library to execute various encryption and decryption processes and precisely calculates the **time required for decryption**.
 
-The project is structured as a console application, making it easy to test and verify different encryption methods.
+It serves as a benchmarking tool for developers and cryptography enthusiasts to understand the speed trade-offs between different algorithms (e.g., AES vs. DES) and key sizes.
 
 ### ✨ Key Features
 
-* **🛡️ OpenSSL Integration:** Utilizes the industry-standard OpenSSL library for robust security.
-* **🔑 Encryption & Decryption:** Demonstrates the complete lifecycle of data protection.
-* **💻 C++ Implementation:** High-performance code written in modern C++.
-* **⚡ Visual Studio Ready:** Includes project files compatible with Visual Studio.
+* **⏱️ Precision Timing:** Accurately calculates the elapsed time for decryption operations in milliseconds/microseconds.
+* **📊 Algorithm Benchmarking:** Compare the performance of different OpenSSL algorithms side-by-side.
+* **💻 Desktop Environment:** Optimized to run on desktop platforms (Windows/Linux) for reliable CPU access.
+* **🛡️ OpenSSL Implementation:** Uses industry-standard libraries for authentic performance metrics.
 
-### 🛠 Prerequisites
+### 🛠 Tech Stack
 
-Before running the project, ensure you have the following installed:
-
-* **C++ Compiler:** GCC, Clang, or MSVC (Visual Studio).
-* **OpenSSL Library:** Must be installed and linked to your project.
-    * *Windows:* Can be installed via vcpkg or pre-compiled binaries.
-    * *Linux:* `sudo apt-get install libssl-dev`
+* **Language:** C++ (High performance & direct memory management)
+* **Library:** OpenSSL (Cryptographic functions)
+* **IDE:** Visual Studio (Project structure is optimized for VS)
 
 ### 🚀 Installation & Build
 
-#### Option 1: Visual Studio (Recommended for Windows)
+#### Option 1: Visual Studio (Recommended)
 1.  Clone the repository:
     ```bash
     git clone [https://github.com/SweetRomeo/Encryption_Decryption_Algorithms.git](https://github.com/SweetRomeo/Encryption_Decryption_Algorithms.git)
     ```
-2.  Open the solution file inside the `ConsoleApplication4` folder.
-3.  Ensure OpenSSL include and library directories are correctly configured in Project Properties.
-4.  Build and Run (F5).
+2.  Open the solution file in the `ConsoleApplication4` folder via Visual Studio.
+3.  Ensure OpenSSL dependencies (Include & Lib folders) are correctly linked in Project Properties.
+4.  Run the application (**Ctrl + F5**).
 
-#### Option 2: Command Line (Linux/Mac)
-1.  Navigate to the project directory.
-2.  Compile using `g++` (linking crypto and ssl libraries):
+#### Option 2: Command Line (GCC/Clang)
+1.  Navigate to the source directory.
+2.  Compile with OpenSSL linking:
     ```bash
-    g++ main.cpp basic_encryption.cpp -o encryptor -lssl -lcrypto
+    g++ main.cpp basic_encryption.cpp -o crypto-bench -lssl -lcrypto
     ```
-3.  Run the application:
+3.  Run the benchmark:
     ```bash
-    ./encryptor
+    ./crypto-bench
     ```
 
 ---
@@ -65,46 +64,43 @@ Before running the project, ensure you have the following installed:
 
 ### 🎯 Proje Hakkında
 
-Bu depo, **OpenSSL** kütüphanesinden güç alan çeşitli kriptografik algoritmaların C++ uygulamalarını içerir. C++ uygulamalarında güvenli veri şifreleme (encryption) ve şifre çözme (decryption) işlemlerinin nasıl uygulanacağını anlamak için pratik bir rehber ve kod tabanı sunar.
+Bu masaüstü uygulaması, kriptografik algoritmaların performansını ölçmek için geliştirilmiştir. **OpenSSL** kütüphanesini kullanarak çeşitli şifreleme ve şifre çözme işlemlerini gerçekleştirir ve özellikle **şifre çözme (decryption) süresini** hassas bir şekilde hesaplar.
 
-Proje, farklı şifreleme yöntemlerini test etmeyi ve doğrulamayı kolaylaştıran bir konsol uygulaması olarak yapılandırılmıştır.
+Geliştiriciler ve kriptografi meraklıları için farklı algoritmaların (örn. AES, DES vb.) hız farklarını ve sistem üzerindeki yükünü analiz etmeyi sağlayan bir **benchmark (kıyaslama)** aracıdır.
 
 ### ✨ Özellikler
 
-* **🛡️ OpenSSL Entegrasyonu:** Endüstri standardı OpenSSL kütüphanesini kullanır.
-* **🔑 Şifreleme ve Çözme:** Veri koruma döngüsünün (Encrypt/Decrypt) tamamını gösterir.
-* **💻 C++ Uygulaması:** Modern C++ ile yazılmış yüksek performanslı kod.
-* **⚡ Visual Studio Uyumlu:** Visual Studio ile doğrudan çalışmaya uygun proje dosyalarını içerir.
+* **⏱️ Hassas Süre Ölçümü:** Şifre çözme işleminin ne kadar sürdüğünü milisaniye/mikrosaniye cinsinden hesaplar.
+* **📊 Algoritma Karşılaştırma:** Farklı algoritmaların hız performanslarını test etme imkanı sunar.
+* **💻 Masaüstü Performansı:** İşlemci gücünü doğrudan kullanmak için masaüstü ortamına optimize edilmiştir.
+* **🛡️ OpenSSL Altyapısı:** Gerçekçi sonuçlar için endüstri standardı kütüphaneleri kullanır.
 
-### 🛠 Gereksinimler
+### 🛠 Teknoloji Yığını
 
-Projeyi çalıştırmadan önce aşağıdakilerin yüklü olduğundan emin olun:
-
-* **C++ Derleyicisi:** GCC, Clang veya MSVC (Visual Studio).
-* **OpenSSL Kütüphanesi:** Sisteme yüklü ve projeye linklenmiş olmalıdır.
-    * *Windows:* vcpkg veya hazır binary dosyaları ile kurulabilir.
-    * *Linux:* `sudo apt-get install libssl-dev`
+* **Dil:** C++ (Yüksek performans için)
+* **Kütüphane:** OpenSSL (Şifreleme fonksiyonları için)
+* **IDE:** Visual Studio (Proje yapısı VS için hazırdır)
 
 ### 🚀 Kurulum ve Çalıştırma
 
-#### Seçenek 1: Visual Studio (Windows için Önerilen)
-1.  Repoyu klonlayın:
+#### Seçenek 1: Visual Studio (Önerilen)
+1.  Repoyu bilgisayarınıza indirin:
     ```bash
     git clone [https://github.com/SweetRomeo/Encryption_Decryption_Algorithms.git](https://github.com/SweetRomeo/Encryption_Decryption_Algorithms.git)
     ```
-2.  `ConsoleApplication4` klasörü içindeki çözüm (solution) dosyasını açın.
-3.  Proje Özellikleri'nden (Project Properties) OpenSSL include ve library yollarının doğru yapılandırıldığından emin olun.
-4.  Derleyin ve Çalıştırın (F5).
+2.  `ConsoleApplication4` klasöründeki çözüm dosyasını Visual Studio ile açın.
+3.  Proje ayarlarında OpenSSL kütüphanesinin (Include ve Lib yolları) tanımlı olduğundan emin olun.
+4.  Uygulamayı çalıştırın (**Ctrl + F5**).
 
-#### Seçenek 2: Komut Satırı (Linux/Mac)
-1.  Proje dizinine gidin.
-2.  `g++` kullanarak (ssl ve crypto kütüphanelerini bağlayarak) derleyin:
+#### Seçenek 2: Komut Satırı (GCC)
+1.  Kaynak kodun olduğu dizine gidin.
+2.  OpenSSL kütüphanesini bağlayarak derleyin:
     ```bash
-    g++ main.cpp basic_encryption.cpp -o encryptor -lssl -lcrypto
+    g++ main.cpp basic_encryption.cpp -o crypto-bench -lssl -lcrypto
     ```
-3.  Uygulamayı çalıştırın:
+3.  Testi başlatın:
     ```bash
-    ./encryptor
+    ./crypto-bench
     ```
 
 ---
